@@ -13,6 +13,7 @@ if string.sub(system.getInfo("model"),1,4) == "iPad" then
                 ["@2x"] = 1.5,
                 ["@4x"] = 3.0,
             },
+            fps = 60,
         },
         notification = 
         {

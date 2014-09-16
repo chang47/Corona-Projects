@@ -7,11 +7,12 @@
 -- Your code here
 -- textObject = display.newText( "Hello World", 100, 50, "Times New Roman", 36 );
 -- textObject:setTextColor( 255, 255, 255, 100 );
-local background = display.newImage('wall.jpg', true);
+local physics = require "physics"
+local background = display.newImage('rainbow@2x.png', true);
 background.x = display.contentWidth/2;
-background.y = display.contentHeight;
--- local image01 = display.newImage('small.jpg', 110, 30);
--- local image02 = display.newImage('small.jpg');
--- image02.x = 160; image02.y = 200;
--- image03 = display.newImage( "small.jpg" );
--- image03.x = 160; image03.y = 320;
+background.y = display.contentWidth/2;
+
+local rect = display.newRect(110, 100, 250, 250)
+rect:setFillColor(255, 255, 255)
+--rect:setStrokeColor(40, 160, 2)
+display.setStatusBar(display.HiddenStatusBar)
