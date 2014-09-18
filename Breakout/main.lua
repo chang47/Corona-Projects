@@ -5,9 +5,10 @@
 -----------------------------------------------------------------------------------------
 
 -- Your code here
-display.setStatusBar( HiddenStatusBar )
-
+ 
 local physics = require "physics"
+
+display.setStatusBar(display.HiddenStatusBar)
 
 physics.start()
 physics.setGravity(0, 0)
@@ -28,12 +29,34 @@ local scoreNum
 local levelText
 local levelNum
 
+local alertDisplayGroup -- display.newGroup()
+local alertBox
+local conditionDisplay
+local messageText
+
+local _W = display.contentWidth / 2
+local _H = display.contentHeight / 2
+local bricks = display.newGroup()
+local brickWidth = 35
+local brickHeight = 15
+local row
+local column
+local score = 0
+local scoreIncrease = 100
+local currentLevel
+local vx = 3
+local vy = -3
+local gameEvent = ""
+
+local isSimulator = "simulator" == system.getInfo("environment")
+
 print("hi")
 
 function loadGame( event )
 	if event.target.name == "playbutton" then
-		transition.to(menuScreenGroup, time{time = 0, alpha=0, onComplete=addGameScreen})
-		playBtn.removeEventListener('tap', loadGame)
+		transition.to(menuScreenGroup, {time = 0, alpha=0, onComplete=addGameScreen})
+		playBtn:removeEventListener('tap', loadGame)
+		img = display.newCircle( _W, _H, 10 )
 	end
 end
 
@@ -45,7 +68,7 @@ function mainMenu()
 	mmScreen.y = _H
 
 	playBtn = display.newImage('img/playBtn.png')
-	--playBtn:setReferencePoint(display.CenterReferencePoint)
+
 	playBtn.x = _W; playBtn.y = _H + 50
 	playBtn.name = "playbutton"
 
