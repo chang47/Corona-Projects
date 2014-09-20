@@ -105,6 +105,51 @@ function addGameScreen()
 	gameLevel1()
 end
 
+
+function dragPaddle( event )
+	if isSimulator then
+		if event.phase == "began" then
+			moveX = event.x - paddle.x
+		elseif event.phase == "moved" then
+			paddle.x = event.x - moveX
+		end
+
+		if((paddle.x - paddle.width * 0.5) < 0) then
+			paddle.x = paddle.width *0.5
+		elseif((paddle.x + paddle.width * 0.5 > display.contentWidth)) then
+			paddle.x = display.contentWidth- paddle.width * 0.5
+		end
+	end
+end
+
+function movePaddle( event )
+	paddle.x = display.contentCenterX - (display.contentCenterX *
+(event.yGravity*3))
+	if((paddle.x - paddle.width * 0.5) < 0) then
+		paddle.x = paddle.width * 0.5
+	elseif((paddle.x + paddle.width * 0.5) > display.contentWidth) then
+		paddle.x = display.contentWidth - paddle.width * 0.5
+	end
+end
+
+function bounce(  )
+	vy = -3
+	if((ball.x + ball.width * 0.5) < paddle.x) then
+		vx = -vx
+	elseif((ball.x + ball.width * 0.5 >= paddle.x)) then
+		vx = vx
+	end
+end
+
+function startGame(  ) 
+	physics.addBody(paddle, "static", {density=1, friction=0,
+		bounce=0})
+	physics.addBody(ball, "dynamic", {density=1, friction=0,
+		bounce=0})
+	background:removeEventListener("tap", startGame)
+	gameListeners("add")
+end
+
 function gameLevel1(  )
 	currentLevel = 1
 	bricks:toFront()
@@ -123,6 +168,7 @@ function gameLevel1(  )
 			bricks.insert(bricks, brick) -- ???
 		end
 	end
+	background:addEventListener("tap", startGame)
 end
 
 function gameLevel2(  )
@@ -144,6 +190,89 @@ function gameLevel2(  )
 		end
 	end
 end
+
+function removeBrick( event )
+	if event.other.name == "brick" and ball.x + ball.width * 0.5 <
+		event.other.x + event.other.width * 0.5 then
+		vx = -vx
+	elseif event.other.name == "brick" and ball.x + ball.width * 0.5
+		<= event.other.x + event.other.width * 0.5 then
+		vx = vx
+	end
+
+	if event.other.name == "brick" then
+		vy = vy * -1
+		event.other:removeSelf()
+		event.other = nil
+		bricks.numChildren = bricks.numChildren - 1
+
+		score = score + 1
+		scoreNum.text = score * scoreIncrease
+		scoreNum.x = 54
+	end
+
+	if bricks.numChildren < 0 then
+		alertScreen("You Win:", "Continue")
+		gameEvent = "win"
+	end
+end
+
+function updateBall(  )
+	ball.x = ball.x + vx
+	ball.y = ball.y + vy
+
+	if ball.x < 0 or ball.x + ball.width > display.contentWidth then
+		vx = -vx
+	end
+
+	if ball.y < 0 then
+		vy = -vy
+	end
+
+	if ball.y + ball.height > paddle.y + paddle.height then
+		alertScreen("YOU LOSE!", "Play Again") 
+		gameEvent = "lose"
+	end
+end
+
+function changeLevel1(  )
+	bricks.removeSelf()
+
+	bricks.numChildren = 0
+	bricks = display.newGroup()
+
+	alertBox:removeEventListener("tap", restart)
+	alertDisplayGroup:removeSelf()
+	alertDisplayGroup = nil
+
+	ball.x = display.contentWidth*0.5 - ball.width*0.5
+	ball.y = paddle.y-paddle.height - ball.height*0.5 - 2
+
+	paddle.x = display.contentWidth * 0.5
+
+	gameLevel1()
+	background.addEventListener("tap", startGame)
+end
+
+function changeLevel2(  )
+	bricks.removeSelf()
+
+	bricks.numChildren = 0
+	bricks = display.newGroup()
+
+	alertBox:removeEventListener("tap", restart)
+	alertDisplayGroup:removeSelf()
+	alertDisplayGroup = nil
+
+	ball.x = display.contentWidth*0.5 - ball.width*0.5
+	ball.y = paddle.y-paddle.height - ball.height*0.5 - 2
+
+	paddle.x = display.contentWidth * 0.5
+
+	gameLevel2()
+	background.addEventListener("tap", startGame)
+end
+
 
 function alertScreen( title, message )
 	alertBox = display.newImage("alertBox.png")
@@ -171,6 +300,47 @@ function alertScreen( title, message )
 	alertDisplayGroup:insert(alertBox)
 	alertDisplayGroup:insert(conditionDisplay)
 	alertDisplayGroup:insert(messageText)
+
+	alertBox:addEventListener("tap", restart)
+
+	gameListeners("remove")
+end
+
+function gameListeners( event )
+	if event == "add" then
+		Runtime:addEventListener("accelerometer", movePaddle)
+		Runtime:addEventListener("enterFrame", updateBall)
+		Runtime:addEventListener("collision", bounce)
+		Runtime:addEventListener("collision", removeBrick)
+		Runtime:addEventListener("touch", dragPaddle)
+	elseif event == "remove" then
+		Runtime:removeEventListener("accelerometer", movePaddle)
+		Runtime:removeEventListener("enterFrame", updateBall)
+		Runtime:removeEventListener("collision", bounce)
+		Runtime:removeEventListener("collision", removeBrick)
+		Runtime:removeEventListener("touch", dragPaddle)
+	end
+end
+
+function restart(  )
+	if gameEvent == "win" and currentLevel == 1 then
+		currentLevel = currentLevel + 1
+		changeLevel2()
+		levelNum.text = tostring(currentLevel)
+	elseif gameEvent == "win" and currentLevel == 2 then
+		alertScreen("Game Over", "Congratulations!")
+		gameEvent = "completed"
+	elseif gameEvent == "lose" and currentLevel == 1 then
+		score = 0
+		scoreNum.text = 0
+		changeLevel1()
+	elseif gameEvent == "lose" and currentLevel == 2 then
+		score = 0
+		scoreNum.text = 0
+		changeLevel2()
+	elseif gameEvent == "completed" then
+		alertBox:removeEventListener("tap", restart)
+	end
 end
 
 function main(  )
