@@ -103,6 +103,7 @@ function addGameScreen()
 	levelNum:setTextColor(255,255,255,255)
 
 	gameLevel1()
+	background:addEventListener("tap", startGame)
 end
 
 
@@ -168,7 +169,6 @@ function gameLevel1(  )
 			bricks.insert(bricks, brick) -- ???
 		end
 	end
-	background:addEventListener("tap", startGame)
 end
 
 function gameLevel2(  )
@@ -236,7 +236,7 @@ function updateBall(  )
 end
 
 function changeLevel1(  )
-	bricks.removeSelf()
+	bricks:removeSelf()
 
 	bricks.numChildren = 0
 	bricks = display.newGroup()
@@ -251,7 +251,7 @@ function changeLevel1(  )
 	paddle.x = display.contentWidth * 0.5
 
 	gameLevel1()
-	background.addEventListener("tap", startGame)
+	background:addEventListener("tap", startGame)
 end
 
 function changeLevel2(  )
@@ -275,8 +275,10 @@ end
 
 
 function alertScreen( title, message )
-	alertBox = display.newImage("alertBox.png")
-	alertBox.x = 240; alertBox.y = 160
+	gameListeners("remove")
+	alertBox = display.newImage("img/alertBox.png")
+	alertBox.x = 240
+	alertBox.y = 160
 	transition.from(alertBox, {time = 500, xScale = 0.5, yScale = 0.5,
 		transition = easing.outExpo})
 
@@ -284,17 +286,15 @@ function alertScreen( title, message )
 	conditionDisplay:setTextColor(255,255,255,255)
 	conditionDisplay.xScale = 0.5
 	conditionDisplay.yScale = 0.5
-	--
 	conditionDisplay.x = display.contentCenterX
-	conditionDisplay.y = display.contentHeightY - 15
+	conditionDisplay.y = display.contentCenterY	 - 15
 
 	messageText = display.newText(message, 0, 0, "Arial", 24)
 	messageText:setTextColor(255,255,255,255)
 	messageText.xScale = 0.5
 	messageText.yScale = 0.5
-	--
 	messageText.x = display.contentCenterX
-	messageText.y = display.contentHeightY
+	messageText.y = display.contentCenterY - 15
 
 	alertDisplayGroup = display.newGroup()
 	alertDisplayGroup:insert(alertBox)
@@ -302,23 +302,21 @@ function alertScreen( title, message )
 	alertDisplayGroup:insert(messageText)
 
 	alertBox:addEventListener("tap", restart)
-
-	gameListeners("remove")
 end
 
 function gameListeners( event )
 	if event == "add" then
 		Runtime:addEventListener("accelerometer", movePaddle)
 		Runtime:addEventListener("enterFrame", updateBall)
-		Runtime:addEventListener("collision", bounce)
-		Runtime:addEventListener("collision", removeBrick)
-		Runtime:addEventListener("touch", dragPaddle)
+		paddle:addEventListener("collision", bounce)
+		ball:addEventListener("collision", removeBrick)
+		paddle:addEventListener("touch", dragPaddle)
 	elseif event == "remove" then
 		Runtime:removeEventListener("accelerometer", movePaddle)
 		Runtime:removeEventListener("enterFrame", updateBall)
-		Runtime:removeEventListener("collision", bounce)
-		Runtime:removeEventListener("collision", removeBrick)
-		Runtime:removeEventListener("touch", dragPaddle)
+		paddle:removeEventListener("collision", bounce)
+		ball:removeEventListener("collision", removeBrick)
+		paddle:removeEventListener("touch", dragPaddle)
 	end
 end
 
