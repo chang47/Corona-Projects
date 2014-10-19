@@ -2,7 +2,7 @@ local json = require('json')
 
 local file = {}
 
-function file:exists(filename)
+function file.exists(filename)
 	local path = system.pathForFile( filename, system.DocumentsDirectory)
 	local file = io.open( path , 'r' )
 	if file then
@@ -13,7 +13,7 @@ function file:exists(filename)
 	end
 end
 
-function file:saveTable(filename, table, f2)
+function file.saveTable(filename, table, f2)
 	print(filename)
 	print(table)
 	print(f2)
@@ -30,7 +30,7 @@ function file:saveTable(filename, table, f2)
 	end
 end
 
-function file:loadTable(filename)
+function file.loadTable(filename)
 	print('make it in here')
 	local path = system.pathForFile( filename, system.DocumentsDirectory )
 	local contents = ""
@@ -45,7 +45,7 @@ function file:loadTable(filename)
 	return nil
 end
 
-function file:print()
+function file.print()
 	print("sdgwerwe")
 end
 

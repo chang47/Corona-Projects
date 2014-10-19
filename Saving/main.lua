@@ -109,7 +109,7 @@ box:addEventListener( 'tap', onTap )
 
 function saves()
 	myGameSettings.highscore = highscore
-	file.saveTable("random", 'save.json', myGameSettings, '23423') --
+	file.saveTable('save.json', myGameSettings, '23423') --
 end
 done:addEventListener( 'tap', saves)
 
